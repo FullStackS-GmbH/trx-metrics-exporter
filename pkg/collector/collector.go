@@ -1,50 +1,63 @@
 package collector
 
 import (
+	"log"
+	"os"
+	"time"
+
+	g "github.com/gosnmp/gosnmp"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type trxMetrics struct {
-	CpuUsage        prometheus.Gauge
-	RamUsage        prometheus.Gauge
+	CpuIdle         prometheus.Gauge
+	RamTotal        prometheus.Gauge
+	RamAvailable    prometheus.Gauge
 	FirmwareVersion prometheus.Gauge
 	SerialNumber    prometheus.Gauge
 }
 
 func new() trxMetrics {
-	trx = trxMetrics{
-		CpuUsage: prometheus.NewGauge(
+	trx := trxMetrics{
+		CpuIdle: prometheus.NewGauge(
 			prometheus.GaugeOpts{
-				Name: "trx_cpu_usage",
-				Help: "CPU Usage of KLAS TRX Server",
+				Name: "trx_cpu_idle",
+				Help: "CPU IDLE of KLAS TRX Server",
 			},
 		),
-		RamUsage: prometheus.NewGauge(
+		RamTotal: prometheus.NewGauge(
 			prometheus.GaugeOpts{
-				Name: "trx_ram_usage",
-				Help: "RAM Usage of KLAS TRX Server",
+				Name: "trx_ram_total",
+				Help: "Total RAM of KLAS TRX Server",
 			},
 		),
-		FirmwareVersion: prometheus.NewGauge(
+		RamAvailable: prometheus.NewGauge(
 			prometheus.GaugeOpts{
-				Name: "trx_firmware_version",
-				Help: "Firmware Version of KLAS TRX Server",
+				Name: "trx_ram_available",
+				Help: "Total RAM of KLAS TRX Server",
 			},
 		),
-		SerialNumber: prometheus.NewGauge(
-			prometheus.GaugeOpts{
-				Name: "trx_serial_number",
-				Help: "Serial Number of KLAS TRX Server",
-			},
-		),
+		// FirmwareVersion: prometheus.NewGauge(
+		// 	prometheus.GaugeOpts{
+		// 		Name: "trx_firmware_version",
+		// 		Help: "Firmware Version of KLAS TRX Server",
+		// 	},
+		// ),
+		// SerialNumber: prometheus.NewGauge(
+		// 	prometheus.GaugeOpts{
+		// 		Name: "trx_serial_number",
+		// 		Help: "Serial Number of KLAS TRX Server",
+		// 	},
+		// ),
 	}
+	// Register metrics with prometheus
+	prometheus.MustRegister(trx.CpuIdle)
+	prometheus.MustRegister(trx.RamTotal)
+	prometheus.MustRegister(trx.RamAvailable)
+	// prometheus.MustRegister(trx.FirmwareVersion)
+	// prometheus.MustRegister(trx.SerialNumber)
+	return trx
 }
-
-// Register metrics with prometheus
-prometheus.MustRegister(trx.CpuUsage)
-prometheus.MustRegister(trx.RamUsage)
-prometheus.MustRegister(trx.FirmwareVersion)
-prometheus.MustRegister(trx.SerialNumber)
 
 func Collect() {
 
@@ -69,28 +82,32 @@ func Collect() {
 	serverMetrics := new()
 
 	// Update values every 300s
-	ticker := time.NewTicker(300 * time.Second)
+	ticker := time.NewTicker(10 * time.Second)
 	for range ticker.C {
 
 		// SNMP GET
+		g.Default.Target = ipAddress
+		g.Default.Community = snmpCommunity
+		err := g.Default.Connect()
+		if err != nil {
+			log.Fatalf("Connect() err: %v", err)
+		}
+		defer g.Default.Conn.Close()
+
+		oids := []string{"1.3.6.1.4.1.2021.11.11.0", "1.3.6.1.4.1.2021.4.5.0", "1.3.6.1.4.1.2021.4.6.0"}
+
+		result, err2 := g.Default.Get(oids) // Get() accepts up to g.MAX_OIDS
+		if err2 != nil {
+			log.Fatalf("Get() err: %v", err2)
+		}
 
 		// Set prometheus metrics
-		serverMetrics.CpuUsage.Set()
-		serverMetrics.RamUsage.Set()
-		serverMetrics.FirmwareVersion.Set()
-		serverMetrics.SerialNumber.Set()
+		serverMetrics.CpuIdle.Set(float64(result.Variables[0].Value.(int)))
+		serverMetrics.RamTotal.Set(float64(result.Variables[1].Value.(int)))
+		serverMetrics.RamAvailable.Set(float64(result.Variables[2].Value.(int)))
+		// serverMetrics.FirmwareVersion.Set(3)
+		// serverMetrics.SerialNumber.Set(4)
 
 	}
 
-}
-
-func convertToFloat(input [byte]) float64 {
-
-	//Trim the quotation marks from the string and parse the result as a float
-	floatValue, err := strconv.ParseFloat(strings.Trim(string(input), `"`), 64)
-
-	if err != nil {
-		     log.Fatal(err)
-	}
-	return floatValue
 }
