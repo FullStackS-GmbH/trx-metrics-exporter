@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"https://github.com/FullStackS-GmbH/trx-metrics-exporter/pkg/collector"
+
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
