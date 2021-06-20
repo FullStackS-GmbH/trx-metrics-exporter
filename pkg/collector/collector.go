@@ -81,8 +81,8 @@ func Collect() {
 
 	serverMetrics := new()
 
-	// Update values every 300s
-	ticker := time.NewTicker(10 * time.Second)
+	// Update values every 30s
+	ticker := time.NewTicker(30 * time.Second)
 	for range ticker.C {
 
 		// SNMP GET
