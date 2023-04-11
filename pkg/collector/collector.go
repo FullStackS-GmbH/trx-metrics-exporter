@@ -103,8 +103,8 @@ func Collect() {
 
 		// Set prometheus metrics
 		serverMetrics.CpuIdle.Set(float64(result.Variables[0].Value.(uint)))
-		serverMetrics.RamTotal.Set(float64(result.Variables[1].Value.(int)))
-		serverMetrics.RamAvailable.Set(float64(result.Variables[2].Value.(int)))
+		serverMetrics.RamTotal.Set(float64(result.Variables[1].Value.(uint)))
+		serverMetrics.RamAvailable.Set(float64(result.Variables[2].Value.(uint)))
 		// serverMetrics.FirmwareVersion.Set(3)
 		// serverMetrics.SerialNumber.Set(4)
 
