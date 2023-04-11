@@ -49,6 +49,27 @@ spec:
         envFrom:
           - configMapRef:
               name: snmp2prom-mockup-env
+--- 
 
 
+apiVersion: v1
+kind: Service
+metadata:
+  name: snmp2prom-mockup
+  labels:
+    app: snmp2prom-mockup
+    db-systel-edgemonitoring: snmp2prom-mockup
+  namespace: default
+  annotations:
+    alpha.monitoring.coreos.com/non-namespaced: "true"
+spec:
+  ports:
+    - name: http-metrics
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: snmp2prom-mockup
+  sessionAffinity: None
+  type: ClusterIP
 

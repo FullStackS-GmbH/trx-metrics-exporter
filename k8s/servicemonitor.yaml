@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: snmp2prom-mockup
+  labels:
+    k8s-apps: http
+spec:
+  jobLabel: snmp2prom-mockup
+  selector:
+    matchExpressions:
+    - {key: db-systel-edgemonitoring, operator: Exists}
+  namespaceSelector:
+    matchNames:
+    - default
+  endpoints:
+  - port: http-metrics
+    interval: 15s
