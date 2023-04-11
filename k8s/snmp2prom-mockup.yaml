@@ -29,7 +29,7 @@ spec:
         app: snmp2prom-mockup
     spec:
       containers:
-      - image: fullstacksgmbh/snmp2prom:v0.0.1
+      - image: fullstacksgmbh/snmp2prom:v0.0.2
         name: snmp2prom
         resources:
           requests:
