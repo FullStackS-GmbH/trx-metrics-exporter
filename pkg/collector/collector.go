@@ -94,7 +94,7 @@ func Collect() {
 		}
 		defer g.Default.Conn.Close()
 
-		oids := []string{"1.3.6.1.4.1.2021.11.11.0", "1.3.6.1.4.1.2021.4.5.0", "1.3.6.1.4.1.2021.4.6.0"}
+		oids := []string{".1.3.6.1.4.1.2021.11.53.0", "1.3.6.1.4.1.2021.4.5.0", "1.3.6.1.4.1.2021.4.6.0"}
 
 		result, err2 := g.Default.Get(oids) // Get() accepts up to g.MAX_OIDS
 		if err2 != nil {
