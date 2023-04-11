@@ -1,6 +1,6 @@
 #!/bin/bash
 
 docker build \
- -t fullstacksgmbh/trx-metrics-exporter:$TAG \
+ -t fullstacksgmbh/snmp2prom:$TAG \
  --no-cache \
  .
