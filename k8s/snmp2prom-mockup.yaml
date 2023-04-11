@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: snmp2prom-mockup-env
+  namespace: default
+data:
+  TRX_MGMT_IP: 192.168.188.9
+  TRX_SNMP_COMMUNITY: fullstackspublic
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: snmp2prom-mockup
+  name: snmp2prom-mockup
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: snmp2prom-mockup
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: snmp2prom-mockup
+    spec:
+      containers:
+      - image: fullstacksgmbh/snmp2prom:v0.0.1
+        name: snmp2prom
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1000Mi"
+            cpu: "500m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {}
+          privileged: false
+          readOnlyRootFilesystem: false
+          runAsUser: 65532
+        ports:
+          - containerPort: 8080
+        envFrom:
+          - configMapRef:
+              name: snmp2prom-mockup-env
+
+
+
