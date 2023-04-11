@@ -1,6 +1,6 @@
 #!/bin/bash
 
 docker build \
- -t registry.fullstacks.eu/fullstacks/trx-metrics-exporter:$TAG \
+ -t fullstacksgmbh/trx-metrics-exporter:$TAG \
  --no-cache \
  .
